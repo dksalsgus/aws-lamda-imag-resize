@@ -1,0 +1,46 @@
+service: lambda-image-resize
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+  - serverless-plugin-common-excludes
+  - serverless-plugin-include-dependencies
+  - serverless-lambda-edge-pre-existing-cloudfront
+
+package: 
+  individually: true
+
+lambdaEdgePreExistingCloudFront:
+  validStages:
+    - dev
+    - staging
+    - prod
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  iam:
+    role : 'arn:aws:iam::098944932694:role/lambda-edge-image-resize'
+
+functions:
+  imageResize:
+    handler: index.imageResize
+    events:
+      - preExistingCloudFront:
+          distributionId: EAD2S1KBV8KV1
+          eventType: origin-response
+          pathPattern: '*'
+          includeBody: false
+          stage: dev
+      # - preExistingCloudFront:
+      #     distributionId: E21FJP9HQD81E8
+      #     eventType: origin-response
+      #     pathPattern: '*'
+      #     includeBody: false
+      #     stage: staging
+    # events:
+    #   - http:
+    #       path: image
+    #       method: get
+      
